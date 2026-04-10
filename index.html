@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>에브리타임 메이커</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'eta-red': '#f91f15',
+                        'eta-teal': '#1abc9c',
+                        'eta-black': '#292929',
+                        'eta-gray': '#a6a6a6',
+                        'eta-border': '#f2f2f2',
+                        'eta-divider': '#f4f5f7',
+                        'eta-icon': '#d6d6d6'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    
+    <style>
+        body { 
+            background-color: #f3f4f6; 
+            color: #111827; 
+            font-family: 'Pretendard', sans-serif; 
+            -webkit-font-smoothing: antialiased; 
+        }
+        
+        /* 🔥 에디터 (왼쪽) 깔끔한 UI 🔥 */
+        .glass-card { background: #ffffff; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); border: 1px solid #f3f4f6; }
+        .ui-input { width: 100%; padding: 12px 14px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; color: #111827; outline: none; transition: all 0.2s; }
+        .ui-input:focus { background: #ffffff; border-color: #f91f15; box-shadow: 0 0 0 3px rgba(249, 31, 21, 0.1); }
+        .ui-textarea { width: 100%; padding: 14px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; outline: none; min-height: 90px; resize: none; transition: all 0.2s; }
+        .ui-textarea:focus { background: #ffffff; border-color: #f91f15; box-shadow: 0 0 0 3px rgba(249, 31, 21, 0.1); }
+        
+        /* 버튼 */
+        .btn-primary { background: #f91f15; color: white; padding: 14px 20px; border-radius: 12px; font-size: 15px; font-weight: 700; transition: all 0.2s; border: none; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(249, 31, 21, 0.25); }
+        .btn-primary:hover { background: #df160d; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(249, 31, 21, 0.3); }
+        .btn-outline { background: #ffffff; color: #4b5563; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 600; border: 1px solid #e5e7eb; cursor: pointer; transition: all 0.2s; }
+        .btn-outline:hover { background: #f3f4f6; }
+        
+        /* 🔥 캡처 영역 (오른쪽) 절대 규격 고정 🔥 */
+        .preview-wrapper { width: 390px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-radius: 2px; overflow: hidden; background: #ffffff; border: 1px solid #e5e7eb; }
+        #capture-target { width: 390px; background: #ffffff; display: block; box-sizing: border-box; }
+        
+        /* 에타 프로필 */
+        .profile-img { width: 38px; height: 38px; border-radius: 12px; background-color: #f2f2f2; display: flex; align-items: center; justify-content: center; }
+        .profile-img-sm { width: 30px; height: 30px; border-radius: 10px; background-color: #f2f2f2; display: flex; align-items: center; justify-content: center; }
+        
+        /* 뒤틀림 방지용 CSS (자간 및 폰트 강제 고정) */
+        .eta-text-fix { letter-spacing: normal !important; line-height: 1.5 !important; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-6 md:p-10">
+
+    <main class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-10 items-start justify-center">
+        
+        <section class="w-full lg:w-[440px] flex-shrink-0 space-y-6">
+            
+            <div class="glass-card p-6">
+                <div class="flex items-center justify-between mb-5 border-b border-gray-100 pb-4">
+                    <h2 class="text-lg font-black text-gray-800 flex items-center gap-2">
+                        <svg class="w-6 h-6" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="50" cy="50" r="50" fill="#f91f15"/>
+                            <path d="M35 45 C35 60, 65 60, 65 45" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                            <circle cx="50" cy="30" r="6" fill="white"/>
+                        </svg>
+                        에브리타임 메이커
+                    </h2>
+                    <button onclick="rollRandomStats()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-md text-[11px] font-bold transition">
+                        🎲 시간/수치 랜덤
+                    </button>
+                </div>
+                
+                <div class="space-y-3">
+                    <input type="text" id="in-title" class="ui-input font-bold" value="제목 없음" placeholder="제목 (비우면 숨김)" oninput="syncView()">
+                    <textarea id="in-content" class="ui-textarea" placeholder="본문을 작성해주세요." oninput="syncView()">내용을 입력하세요.</textarea>
+                </div>
+            </div>
+
+            <div class="glass-card p-6 flex flex-col max-h-[500px]">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-gray-800 text-sm">댓글 작성</h3>
+                    <span id="comment-counter" class="text-[11px] font-bold text-eta-red bg-red-50 px-2 py-0.5 rounded">0개</span>
+                </div>
+                
+                <div id="editor-comments" class="flex-1 overflow-y-auto space-y-2 pr-1 mb-4">
+                    </div>
+                <button onclick="addComment()" class="btn-outline w-full">+ 새 댓글 추가</button>
+            </div>
+
+            <button onclick="captureImage()" class="btn-primary flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                고화질 캡처 저장
+            </button>
+        </section>
+
+        <section class="preview-wrapper sticky top-10">
+            <div id="capture-target" class="eta-text-fix text-eta-black">
+                
+                <div class="px-4 py-3.5 flex items-center justify-between border-b border-[#f9f9f9]">
+                    <svg class="w-6 h-6 text-eta-black" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+                    <div class="text-center flex items-center justify-center gap-1.5">
+                        <span id="out-board" class="text-[15px] font-bold text-eta-black leading-none">자유게시판</span>
+                    </div>
+                    <div class="flex items-center gap-2.5 text-[#d6d6d6]">
+                        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        <svg class="w-[20px] h-[20px]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                    </div>
+                </div>
+
+                <div class="px-5 pt-4 pb-2">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="profile-img">
+                            <svg class="w-[22px] h-[22px] text-[#d6d6d6]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <span class="text-[15px] font-bold text-eta-black leading-none mb-1.5">익명</span>
+                            <span id="out-time" class="text-[12px] text-eta-gray leading-none">30분 전</span>
+                        </div>
+                    </div>
+                    
+                    <h2 id="out-title" class="text-[20px] font-bold text-eta-black mb-2.5 tracking-tight leading-snug">제목 없음</h2>
+                    <p id="out-content" class="text-[15px] text-eta-black leading-[1.6] break-keep whitespace-pre-wrap tracking-tight min-h-[40px]">내용을 입력하세요.</p>
+                </div>
+
+                <div class="flex border-y border-[#f2f2f2] mt-6 py-3 text-[13px] font-bold text-eta-gray">
+                    <div class="flex-1 flex justify-center items-center gap-1.5 border-r border-[#f2f2f2]">
+                        <svg class="w-4 h-4 text-eta-red" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
+                        <span class="text-eta-red">공감</span>
+                        <span id="out-like" class="text-eta-red ml-0.5">120</span>
+                    </div>
+                    <div class="flex-1 flex justify-center items-center gap-1.5 border-r border-[#f2f2f2]">
+                        <svg class="w-4 h-4 text-eta-teal" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path></svg>
+                        <span class="text-eta-teal">댓글</span>
+                        <span id="out-comment" class="text-eta-teal ml-0.5">2</span>
+                    </div>
+                    <div class="flex-1 flex justify-center items-center gap-1.5">
+                        <svg class="w-4 h-4 text-[#ffbb00]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <span class="text-[#ffbb00]">스크랩</span>
+                        <span id="out-scrap" class="text-[#ffbb00] ml-0.5">7</span>
+                    </div>
+                </div>
+
+                <div id="out-comments-list" class="flex flex-col bg-white min-h-[60px] pb-6">
+                    </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 초기 데이터 설정
+        let comments = [];
+        let postStats = { time: '30분 전', like: 120, scrap: 7 };
+        const timePool = ["방금 전", "1분 전", "3분 전", "12분 전", "30분 전", "1시간 전", "04/10 22:15"];
+
+        // 🎲 수치 랜덤 로직
+        function rollRandomStats() {
+            postStats.time = timePool[Math.floor(Math.random() * timePool.length)];
+            postStats.like = Math.floor(Math.random() * 200);
+            postStats.scrap = Math.floor(Math.random() * 20);
+            
+            comments.forEach(c => {
+                c.time = timePool[Math.floor(Math.random() * timePool.length)];
+                c.like = Math.random() > 0.4 ? Math.floor(Math.random() * 10) + 1 : 0;
+            });
+            syncView();
+        }
+
+        // 화면 렌더링 동기화 함수
+        function syncView() {
+            // 게시글 텍스트 업데이트
+            const title = document.getElementById('in-title').value;
+            const titleEl = document.getElementById('out-title');
+            if(title) { titleEl.innerText = title; titleEl.style.display = 'block'; } else { titleEl.style.display = 'none'; }
+            
+            document.getElementById('out-content').innerText = document.getElementById('in-content').value || '내용을 입력하세요.';
+            
+            // 수치 업데이트
+            document.getElementById('out-time').innerText = postStats.time;
+            document.getElementById('out-like').innerText = postStats.like;
+            document.getElementById('out-comment').innerText = comments.length;
+            document.getElementById('out-scrap').innerText = postStats.scrap;
+            document.getElementById('comment-counter').innerText = `${comments.length}개`;
+
+            // [에디터] 댓글 UI 렌더링
+            const editList = document.getElementById('editor-comments');
+            if (comments.length === 0) {
+                editList.innerHTML = `<div class="text-center text-xs text-gray-400 py-4 bg-gray-50 rounded">작성된 댓글이 없습니다.</div>`;
+            } else {
+                editList.innerHTML = comments.map((c, i) => `
+                    <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 p-2 rounded-lg">
+                        <label class="flex flex-col items-center justify-center gap-1 px-1 cursor-pointer">
+                            <span class="text-[10px] text-gray-500">글쓴이</span>
+                            <input type="checkbox" class="custom-checkbox" ${c.isAuthor ? 'checked' : ''} onchange="comments[${i}].isAuthor=this.checked; syncView()">
+                        </label>
+                        <input type="text" class="ui-input !mb-0 !p-2 !text-xs flex-1" value="${c.text}" oninput="comments[${i}].text=this.value; syncView()" placeholder="내용">
+                        <button onclick="deleteComment(${i})" class="text-gray-400 hover:text-red-500 font-bold px-2">✕</button>
+                    </div>
+                `).join('');
+            }
+
+            // [뷰어] 에타 댓글 UI 렌더링
+            const viewList = document.getElementById('out-comments-list');
+            viewList.innerHTML = comments.map((c, i) => {
+                const authorColor = c.isAuthor ? 'text-eta-teal' : 'text-eta-black';
+                const displayName = c.isAuthor ? '익명(글쓴이)' : `익명${i+1}`;
+                const borderTop = i > 0 ? 'border-t border-[#f2f2f2]' : '';
+                
+                // 공감 뱃지 (숫자가 1 이상일 때) - 어긋남 방지 구조
+                const likeBadge = c.like > 0 
+                    ? `<div style="display:inline-flex; align-items:center; gap:2px; margin-left:8px; color:#f91f15; font-size:12px; font-weight:bold;">
+                        <svg style="width:12px; height:12px; margin-bottom:1px;" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
+                        <span>${c.like}</span>
+                       </div>` 
+                    : '';
+
+                return `
+                    <div class="${borderTop} px-4 py-3.5 flex gap-3 bg-white">
+                        <div class="profile-img-sm flex-shrink-0 mt-0.5">
+                            <svg class="w-[18px] h-[18px] text-[#d6d6d6]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+                        </div>
+                        <div class="flex-1 flex flex-col pt-0.5">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[13.5px] font-bold ${authorColor} tracking-tight">${displayName}</span>
+                                <div class="flex items-center text-[#d6d6d6] gap-2.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                </div>
+                            </div>
+                            <div class="text-[14px] text-eta-black leading-[1.5] tracking-tight break-keep whitespace-pre-wrap">${c.text}</div>
+                            <div class="flex items-center mt-1.5 leading-none">
+                                <span class="text-[12px] text-[#a6a6a6]">${c.time}</span>
+                                ${likeBadge}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 새 댓글
+        function addComment() {
+            comments.push({ text: "새 댓글입니다.", time: "방금 전", like: 0, isAuthor: false });
+            syncView();
+            setTimeout(() => {
+                const el = document.getElementById('editor-comments');
+                el.scrollTop = el.scrollHeight;
+            }, 50);
+        }
+
+        // 댓글 삭제
+        function deleteComment(idx) {
+            comments.splice(idx, 1);
+            syncView();
+        }
+
+        // 🔥 이미지 캡처 (화면 밀림 완벽 차단) 🔥
+        async function captureImage() {
+            await document.fonts.ready; // 폰트 로딩 대기
+            
+            const target = document.getElementById('capture-target');
+            
+            // html-to-image 옵션으로 스타일을 덮어씌워 소수점 밀림 현상을 원천 방지합니다.
+            htmlToImage.toPng(target, {
+                quality: 1.0,
+                pixelRatio: 4, // 고해상도 처리
+                backgroundColor: '#ffffff',
+                style: {
+                    transform: 'none', // 브라우저 배율 간섭 제거
+                    margin: '0'
+                }
+            })
+            .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = `에타캡처_${Date.now()}.png`;
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch(function (error) {
+                console.error('캡처 중 오류가 발생했습니다!', error);
+                alert('캡처에 실패했습니다. 다시 시도해주세요.');
+            });
+        }
+
+        // 초기 실행
+        window.onload = () => {
+            syncView(); // 초기 빈 화면 그대로 렌더링
+        };
+    </script>
+</body>
+</html>
