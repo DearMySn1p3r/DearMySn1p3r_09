@@ -180,7 +180,7 @@
             syncView();
         }
 
-        // 화면 렌더링 동기화 함수
+        // 화면 렌더링 동기화 함수 (오른쪽 뷰어 및 텍스트만 업데이트)
         function syncView() {
             // 게시글 텍스트 업데이트
             const title = document.getElementById('in-title').value;
@@ -196,23 +196,6 @@
             document.getElementById('out-scrap').innerText = postStats.scrap;
             document.getElementById('comment-counter').innerText = `${comments.length}개`;
 
-            // [에디터] 댓글 UI 렌더링
-            const editList = document.getElementById('editor-comments');
-            if (comments.length === 0) {
-                editList.innerHTML = `<div class="text-center text-xs text-gray-400 py-4 bg-gray-50 rounded">작성된 댓글이 없습니다.</div>`;
-            } else {
-                editList.innerHTML = comments.map((c, i) => `
-                    <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 p-2 rounded-lg">
-                        <label class="flex flex-col items-center justify-center gap-1 px-1 cursor-pointer">
-                            <span class="text-[10px] text-gray-500">글쓴이</span>
-                            <input type="checkbox" class="custom-checkbox" ${c.isAuthor ? 'checked' : ''} onchange="comments[${i}].isAuthor=this.checked; syncView()">
-                        </label>
-                        <input type="text" class="ui-input !mb-0 !p-2 !text-xs flex-1" value="${c.text}" oninput="comments[${i}].text=this.value; syncView()" placeholder="내용">
-                        <button onclick="deleteComment(${i})" class="text-gray-400 hover:text-red-500 font-bold px-2">✕</button>
-                    </div>
-                `).join('');
-            }
-
             // [뷰어] 에타 댓글 UI 렌더링
             const viewList = document.getElementById('out-comments-list');
             viewList.innerHTML = comments.map((c, i) => {
@@ -220,7 +203,7 @@
                 const displayName = c.isAuthor ? '익명(글쓴이)' : `익명${i+1}`;
                 const borderTop = i > 0 ? 'border-t border-[#f2f2f2]' : '';
                 
-                // 공감 뱃지 (숫자가 1 이상일 때) - 어긋남 방지 구조
+                // 공감 뱃지
                 const likeBadge = c.like > 0 
                     ? `<div style="display:inline-flex; align-items:center; gap:2px; margin-left:8px; color:#f91f15; font-size:12px; font-weight:bold;">
                         <svg style="width:12px; height:12px; margin-bottom:1px;" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
@@ -252,35 +235,58 @@
             }).join('');
         }
 
-        // 새 댓글
+        // 왼쪽 에디터 UI 렌더링 (포커스 유지를 위해 분리)
+        function renderEditor() {
+            const editList = document.getElementById('editor-comments');
+            if (comments.length === 0) {
+                editList.innerHTML = `<div class="text-center text-xs text-gray-400 py-4 bg-gray-50 rounded">작성된 댓글이 없습니다.</div>`;
+            } else {
+                editList.innerHTML = comments.map((c, i) => `
+                    <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 p-2 rounded-lg">
+                        <label class="flex flex-col items-center justify-center gap-1 px-1 cursor-pointer">
+                            <span class="text-[10px] text-gray-500">글쓴이</span>
+                            <input type="checkbox" class="custom-checkbox" ${c.isAuthor ? 'checked' : ''} onchange="comments[${i}].isAuthor=this.checked; syncView()">
+                        </label>
+                        <input type="text" class="ui-input !mb-0 !p-2 !text-xs flex-1" value="${c.text}" oninput="comments[${i}].text=this.value; syncView()" placeholder="내용">
+                        <button onclick="deleteComment(${i})" class="text-gray-400 hover:text-red-500 font-bold px-2">✕</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 새 댓글 추가 (자동 커서 이동 포함)
         function addComment() {
-            comments.push({ text: "새 댓글입니다.", time: "방금 전", like: 0, isAuthor: false });
+            comments.push({ text: "", time: "방금 전", like: 0, isAuthor: false });
+            renderEditor();
             syncView();
             setTimeout(() => {
                 const el = document.getElementById('editor-comments');
                 el.scrollTop = el.scrollHeight;
+                // 새로 추가된 입력창에 자동으로 마우스 커서 올리기
+                const inputs = el.querySelectorAll('input[type="text"]');
+                if(inputs.length > 0) inputs[inputs.length - 1].focus();
             }, 50);
         }
 
         // 댓글 삭제
         function deleteComment(idx) {
             comments.splice(idx, 1);
+            renderEditor();
             syncView();
         }
 
-        // 🔥 이미지 캡처 (화면 밀림 완벽 차단) 🔥
+        // 이미지 캡처
         async function captureImage() {
-            await document.fonts.ready; // 폰트 로딩 대기
+            await document.fonts.ready;
             
             const target = document.getElementById('capture-target');
             
-            // html-to-image 옵션으로 스타일을 덮어씌워 소수점 밀림 현상을 원천 방지합니다.
             htmlToImage.toPng(target, {
                 quality: 1.0,
-                pixelRatio: 4, // 고해상도 처리
+                pixelRatio: 4,
                 backgroundColor: '#ffffff',
                 style: {
-                    transform: 'none', // 브라우저 배율 간섭 제거
+                    transform: 'none',
                     margin: '0'
                 }
             })
@@ -298,7 +304,8 @@
 
         // 초기 실행
         window.onload = () => {
-            syncView(); // 초기 빈 화면 그대로 렌더링
+            renderEditor();
+            syncView(); 
         };
     </script>
 </body>
