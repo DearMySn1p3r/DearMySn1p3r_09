@@ -1,314 +1,469 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>에브리타임 메이커</title>
-    <link rel="icon" type="image/png" href="MOMO.png">
-    <link rel="apple-touch-icon" href="MOMO.png">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'eta-red': '#f91f15',
-                        'eta-teal': '#1abc9c',
-                        'eta-black': '#292929',
-                        'eta-gray': '#a6a6a6',
-                        'eta-border': '#f2f2f2',
-                        'eta-divider': '#f4f5f7',
-                        'eta-icon': '#d6d6d6'
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
-    
-    <style>
-        body { 
-            background-color: #f3f4f6; 
-            color: #111827; 
-            font-family: 'Pretendard', sans-serif; 
-            -webkit-font-smoothing: antialiased; 
-        }
-        
-        /* 🔥 에디터 (왼쪽) 깔끔한 UI 🔥 */
-        .glass-card { background: #ffffff; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); border: 1px solid #f3f4f6; }
-        .ui-input { width: 100%; padding: 12px 14px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; color: #111827; outline: none; transition: all 0.2s; }
-        .ui-input:focus { background: #ffffff; border-color: #f91f15; box-shadow: 0 0 0 3px rgba(249, 31, 21, 0.1); }
-        .ui-textarea { width: 100%; padding: 14px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; outline: none; min-height: 90px; resize: none; transition: all 0.2s; }
-        .ui-textarea:focus { background: #ffffff; border-color: #f91f15; box-shadow: 0 0 0 3px rgba(249, 31, 21, 0.1); }
-        
-        /* 버튼 */
-        .btn-primary { background: #f91f15; color: white; padding: 14px 20px; border-radius: 12px; font-size: 15px; font-weight: 700; transition: all 0.2s; border: none; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(249, 31, 21, 0.25); }
-        .btn-primary:hover { background: #df160d; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(249, 31, 21, 0.3); }
-        .btn-outline { background: #ffffff; color: #4b5563; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 600; border: 1px solid #e5e7eb; cursor: pointer; transition: all 0.2s; }
-        .btn-outline:hover { background: #f3f4f6; }
-        
-        /* 🔥 캡처 영역 (오른쪽) 절대 규격 고정 🔥 */
-        .preview-wrapper { width: 390px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-radius: 2px; overflow: hidden; background: #ffffff; border: 1px solid #e5e7eb; }
-        #capture-target { width: 390px; background: #ffffff; display: block; box-sizing: border-box; }
-        
-        /* 에타 프로필 */
-        .profile-img { width: 38px; height: 38px; border-radius: 12px; background-color: #f2f2f2; display: flex; align-items: center; justify-content: center; }
-        .profile-img-sm { width: 30px; height: 30px; border-radius: 10px; background-color: #f2f2f2; display: flex; align-items: center; justify-content: center; }
-        
-        /* 뒤틀림 방지용 CSS (자간 및 폰트 강제 고정) */
-        .eta-text-fix { letter-spacing: normal !important; line-height: 1.5 !important; }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커뮤니티 메이커</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Pretendard',-apple-system,sans-serif}
+:root{
+  --paper:#efece7; --card:#ffffff; --ink:#1b1a18; --soft:#8c877e; --faint:#b6b1a8;
+  --hair:#e7e2da; --red:#d93a2b; --wash:#f7f5f2;
+}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;cursor:pointer;color:inherit;border:0;background:none;line-height:1}
+input,textarea{font:inherit;color:inherit}
+
+/* ═══ shell ═══ */
+.shell{display:grid;grid-template-columns:1fr 372px 60px;height:100vh}
+
+/* ── canvas ── */
+.canvas{position:relative;overflow:hidden}
+.mast{position:absolute;top:30px;left:38px;z-index:2}
+.mast h1{font-size:15px;font-weight:600;letter-spacing:-.3px;display:flex;align-items:center;gap:9px}
+.mast h1 em{width:5px;height:5px;border-radius:50%;background:var(--red);font-style:normal}
+.mast p{font-size:11px;color:var(--faint);margin-top:6px;margin-left:14px;letter-spacing:.06em}
+.scaler{position:absolute;left:50%;top:50%;transform-origin:center;transition:transform .24s cubic-bezier(.4,0,.2,1)}
+.dock{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:5;
+  display:flex;align-items:center;gap:6px;padding:6px;background:rgba(255,255,255,.82);
+  backdrop-filter:blur(14px);border:1px solid rgba(0,0,0,.05);border-radius:999px;
+  max-width:calc(100% - 24px);box-shadow:0 12px 30px -12px rgba(40,34,26,.3)}
+.dock .q{display:flex;gap:2px;padding:0 4px 0 6px;flex:none}
+.dock .q button{width:30px;height:30px;border-radius:999px;font-size:11px;font-weight:600;color:var(--faint);
+  display:inline-flex;align-items:center;justify-content:center;flex:none}
+.dock .q button.on{background:var(--ink);color:#fff}
+.dock .div{width:1px;height:18px;background:var(--hair);flex:none}
+.dock .go{height:34px;padding:0 18px;border-radius:999px;background:var(--red);color:#fff;font-size:12.5px;font-weight:600;
+  display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;flex:none;transition:.16s}
+.dock .go:hover{background:#c2301f}
+.dock .alt{height:34px;padding:0 14px;border-radius:999px;font-size:12.5px;font-weight:500;color:var(--soft);
+  display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;flex:none}
+.dock .alt:hover{color:var(--ink)}
+
+/* ── panel ── */
+.panel{background:var(--card);border-left:1px solid var(--hair);overflow-y:auto;overscroll-behavior:contain}
+.panel::-webkit-scrollbar{width:0}
+.pin{padding:0 30px 90px}
+.head{position:sticky;top:0;z-index:4;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
+  padding:26px 30px 16px;margin:0 -30px 22px;border-bottom:1px solid var(--hair)}
+.head h2{font-size:16px;font-weight:600;letter-spacing:-.3px;display:flex;align-items:baseline;gap:9px}
+.head h2 i{font-style:normal;font-size:10.5px;font-weight:500;color:var(--faint);letter-spacing:.06em}
+.head .ops{display:flex;gap:16px;margin-top:12px}
+.head .ops button{font-size:11.5px;font-weight:500;color:var(--faint);transition:.15s}
+.head .ops button:hover{color:var(--ink)}
+.head .ops .r{margin-left:auto}
+
+/* ── rail ── */
+.rail{background:var(--wash);border-left:1px solid var(--hair);display:flex;flex-direction:column;
+  align-items:center;padding-top:26px;gap:6px}
+.rail button{width:44px;height:52px;border-radius:13px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:5px;color:var(--faint);font-size:9.5px;font-weight:600;letter-spacing:.02em;transition:.16s}
+.rail button:hover{color:var(--ink);background:rgba(0,0,0,.035)}
+.rail button.on{background:var(--ink);color:#fff}
+.rail svg{width:17px;height:17px}
+
+/* ── fields ── */
+.f{margin-bottom:22px}
+.f:last-child{margin-bottom:0}
+.f>span{display:block;font-size:10.5px;font-weight:500;color:var(--faint);letter-spacing:.09em;margin-bottom:9px;text-transform:uppercase}
+.u{width:100%;height:30px;border:0;border-bottom:1px solid var(--hair);background:none;outline:none;
+  font-size:14px;letter-spacing:-.2px;transition:border-color .16s;border-radius:0}
+.u::placeholder{color:#cfcac2}
+.u:focus{border-color:var(--red)}
+.u.big{font-size:17px;font-weight:600;height:36px}
+textarea.u{height:auto;min-height:78px;line-height:1.62;resize:vertical;padding:2px 0 8px}
+.u.mini{font-size:12.5px;height:26px}
+.two{display:flex;gap:20px}.two>*{flex:1;min-width:0}
+.four{display:flex;gap:14px}.four>*{flex:1;min-width:0}
+
+.pills{display:inline-flex;gap:4px;padding:3px;background:var(--wash);border-radius:999px}
+.pills button{height:28px;padding:0 15px;border-radius:999px;font-size:11.5px;font-weight:500;color:var(--soft);
+  display:inline-flex;align-items:center;justify-content:center;transition:.16s;white-space:nowrap}
+.pills button:hover{color:var(--ink)}
+.pills button.on{background:var(--ink);color:#fff;font-weight:600}
+.pills.wide{display:flex}.pills.wide button{flex:1}
+.pills.xs button{height:24px;padding:0 11px;font-size:11px}
+
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;cursor:pointer;font-size:13px;letter-spacing:-.2px}
+.sw input{display:none}
+.sw i{width:34px;height:20px;border-radius:999px;background:#dedad3;position:relative;flex:none;transition:.2s}
+.sw i:after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.sw input:checked+i{background:var(--red)}
+.sw input:checked+i:after{left:17px}
+.sw+.sw{border-top:1px solid var(--hair)}
+
+.ln{width:100%;height:42px;border:1px solid var(--hair);border-radius:12px;font-size:12.5px;font-weight:500;color:var(--soft);
+  display:inline-flex;align-items:center;justify-content:center;transition:.16s}
+.ln:hover{border-color:var(--ink);color:var(--ink)}
+.ln.solid{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.ln.solid:hover{background:#000}
+.tiny{font-size:11px;font-weight:500;color:var(--faint);padding:3px 0;transition:.15s}
+.tiny:hover{color:var(--ink)}
+.tiny.rd:hover{color:var(--red)}
+
+/* comments */
+.cb{position:relative;padding:0 0 18px 16px;margin-bottom:18px;border-left:1px solid var(--hair)}
+.cb:before{content:'';position:absolute;left:-3px;top:4px;width:5px;height:5px;border-radius:50%;background:var(--hair)}
+.cb.au:before{background:var(--red)}
+.cb.re{margin-left:20px}
+.cb:last-of-type{margin-bottom:10px}
+.cb-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cb-tools{margin-left:auto;display:flex;gap:10px;opacity:0;transition:.16s}
+.cb:hover .cb-tools,.cb:focus-within .cb-tools{opacity:1}
+@media(hover:none){.cb-tools{opacity:1}}
+.cb-bot{display:flex;align-items:center;gap:14px;margin-top:9px}
+.cb-bot .u{height:24px;font-size:12px}
+.none{font-size:12px;color:var(--faint);padding:14px 0 20px;letter-spacing:-.1px}
+
+/* thumb / upload */
+.tmb{display:flex;align-items:center;gap:13px}
+.tmb .im{width:42px;height:42px;border-radius:11px;background:var(--wash) center/cover;flex:none;display:grid;place-items:center;color:var(--faint);font-size:15px}
+.tmb b{display:block;font-size:12.5px;font-weight:500}
+.tmb span{font-size:10.5px;color:var(--faint)}
+.up{position:relative;overflow:hidden;height:30px;padding:0 14px;border:1px solid var(--hair);border-radius:999px;
+  font-size:11.5px;color:var(--soft);display:inline-flex;align-items:center;justify-content:center;line-height:1;cursor:pointer}
+.up:hover{border-color:var(--ink);color:var(--ink)}
+.up input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* ooc */
+.ooc{width:100%;min-height:360px;border:1px solid var(--hair);border-radius:14px;background:var(--wash);
+  padding:16px;font-size:12.5px;line-height:1.72;letter-spacing:-.1px;resize:vertical;outline:none;transition:.16s}
+.ooc:focus{border-color:var(--ink);background:#fff}
+.note{font-size:11px;color:var(--faint);line-height:1.7;margin-top:14px}
+
+#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,10px);background:var(--ink);color:#fff;
+  font-size:12.5px;padding:11px 18px;border-radius:999px;opacity:0;transition:.24s;z-index:60;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#off{position:fixed;left:-20000px;top:0}
+
+@media(max-width:1000px){
+  html,body{height:auto}
+  body{overflow:visible}
+  .shell{display:flex;flex-direction:column;height:auto}
+  .canvas{order:1}.rail{order:2}.panel{order:3}
+
+  .canvas{position:sticky;top:0;z-index:20;height:46vh;height:46svh;flex:none;
+    background:var(--paper);border-bottom:1px solid var(--hair)}
+  .mast{top:14px;left:18px}
+  .mast h1{font-size:13.5px;gap:7px}
+  .mast p{font-size:10px;margin-top:4px;margin-left:12px}
+  .dock{bottom:14px;gap:4px;padding:5px}
+  .dock .q{padding:0 2px 0 4px}
+  .dock .q button{width:27px;height:27px;font-size:10.5px}
+  .dock .alt{height:32px;padding:0 12px;font-size:12px}
+  .dock .go{height:32px;padding:0 15px;font-size:12px}
+
+  .rail{position:sticky;top:46vh;top:46svh;z-index:19;flex:none;
+    flex-direction:row;padding:8px 14px;gap:7px;
+    border-left:0;border-bottom:1px solid var(--hair)}
+  .rail button{flex:1;flex-direction:row;height:40px;gap:7px;border-radius:11px;font-size:11.5px}
+
+  .panel{border-left:0;overflow:visible}
+  .pin{padding:0 20px 70px}
+  .head{position:static;padding:20px 0 14px;margin:0 0 20px;background:none;backdrop-filter:none}
+  .ooc{min-height:280px}
+}
+
+/* ═══ preview ═══ */
+.stage{display:inline-block;padding:30px 30px 38px}
+.shot{width:390px;background:var(--pg);color:var(--tx);line-height:1.5;letter-spacing:normal;border-radius:16px;overflow:hidden;
+  --pg:#fff;--tx:#232427;--sub:#a4a6ae;--bd:#f1f2f4;--ic:#d3d5da;--chip:#f4f5f6;
+  box-shadow:0 26px 50px -20px rgba(40,34,26,.32),0 0 0 1px rgba(0,0,0,.04)}
+.shot.dark{--pg:#17181c;--tx:#e9eaee;--sub:#7b7e89;--bd:#26282e;--ic:#4a4d57;--chip:#25272d}
+.stage.flat .shot{box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--bd)}
+.hd-m{display:flex;align-items:center;gap:6px}
+.mk{width:18px;height:18px;border-radius:6px;background:var(--red);display:flex;align-items:center;justify-content:center;flex:none}
+.bd{font-size:15px;font-weight:800;letter-spacing:-.2px}
+.hd-i{display:flex;gap:11px;color:var(--ic)}
+.pt{padding:15px 18px 6px}
+.wr{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+.av{width:37px;height:37px;border-radius:12px;background:var(--chip);display:flex;align-items:center;justify-content:center;color:var(--ic);flex:none}
+.av.s{width:29px;height:29px;border-radius:10px}
+.nk{font-size:14.5px;font-weight:700;letter-spacing:-.2px}
+.mt{font-size:12px;color:var(--sub);margin-top:5px}
+.tt{font-size:20px;font-weight:800;letter-spacing:-.5px;line-height:1.35;margin-bottom:9px}
+.bo{font-size:15px;line-height:1.62;letter-spacing:-.25px;white-space:pre-wrap;word-break:keep-all;min-height:22px}
+.pi{width:100%;border-radius:10px;margin-top:13px;display:block}
+.st{display:flex;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);margin-top:20px;padding:12px 0;font-size:13px;font-weight:700}
+.st>div{flex:1;display:flex;justify-content:center;align-items:center;gap:5px}
+.st>div+div{border-left:1px solid var(--bd)}
+.cm{display:flex;gap:11px;padding:13px 15px}
+.cm+.cm{border-top:1px solid var(--bd)}
+.cm.re{padding-left:34px;background:var(--chip)}
+.cm-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.cm-n{font-size:13.5px;font-weight:700;letter-spacing:-.2px}
+.cm-t{font-size:14px;line-height:1.52;letter-spacing:-.25px;white-space:pre-wrap;word-break:keep-all}
+.cm-f{display:flex;align-items:center;gap:9px;margin-top:6px;font-size:12px;color:var(--sub)}
+.aw{color:var(--ic);flex:none;margin-top:3px}
+.sp{padding:9px 15px;font-size:10.5px;font-weight:600;color:var(--sub);text-align:center;border-top:1px solid var(--bd)}
+</style>
 </head>
-<body class="p-6 md:p-10">
+<body>
+<div class="shell">
+  <main class="canvas" id="canvas">
+    <div class="mast">
+      <h1><em></em>커뮤니티 메이커</h1>
+      <p id="cap"></p>
+    </div>
+    <div class="scaler" id="scaler"><div id="preview"></div></div>
+    <div class="dock">
+      <div class="q" id="qual"></div>
+      <div class="div"></div>
+      <button class="alt" data-act="copy">복사</button>
+      <button class="go" data-act="png">이미지 저장</button>
+    </div>
+  </main>
 
-    <main class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-10 items-start justify-center">
-        
-        <section class="w-full lg:w-[440px] flex-shrink-0 space-y-6">
-            
-            <div class="glass-card p-6">
-                <div class="flex items-center justify-between mb-5 border-b border-gray-100 pb-4">
-                    <h2 class="text-lg font-black text-gray-800 flex items-center gap-2">
-                        <svg class="w-6 h-6" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="50" cy="50" r="50" fill="#f91f15"/>
-                            <path d="M35 45 C35 60, 65 60, 65 45" stroke="white" stroke-width="8" stroke-linecap="round"/>
-                            <circle cx="50" cy="30" r="6" fill="white"/>
-                        </svg>
-                        에브리타임 메이커
-                    </h2>
-                    <button onclick="rollRandomStats()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-md text-[11px] font-bold transition">
-                        🎲 시간/수치 랜덤
-                    </button>
-                </div>
-                
-                <div class="space-y-3">
-                    <input type="text" id="in-title" class="ui-input font-bold" value="제목 없음" placeholder="제목 (비우면 숨김)" oninput="syncView()">
-                    <textarea id="in-content" class="ui-textarea" placeholder="본문을 작성해주세요." oninput="syncView()">내용을 입력하세요.</textarea>
-                </div>
-            </div>
+  <aside class="panel"><div class="pin" id="pin"></div></aside>
 
-            <div class="glass-card p-6 flex flex-col max-h-[500px]">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold text-gray-800 text-sm">댓글 작성</h3>
-                    <span id="comment-counter" class="text-[11px] font-bold text-eta-red bg-red-50 px-2 py-0.5 rounded">0개</span>
-                </div>
-                
-                <div id="editor-comments" class="flex-1 overflow-y-auto space-y-2 pr-1 mb-4">
-                    </div>
-                <button onclick="addComment()" class="btn-outline w-full">+ 새 댓글 추가</button>
-            </div>
+  <nav class="rail" id="rail"></nav>
+</div>
+<div id="off"></div>
+<div id="toast"></div>
 
-            <button onclick="captureImage()" class="btn-primary flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                고화질 캡처 저장
-            </button>
-        </section>
+<script>
+/* ───── util ───── */
+const $=s=>document.querySelector(s);
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TIMES=['방금 전','1분 전','5분 전','14분 전','27분 전','52분 전','1시간 전','3시간 전','어제 22:41','09/24 13:07'];
 
-        <section class="preview-wrapper sticky top-10">
-            <div id="capture-target" class="eta-text-fix text-eta-black">
-                
-                <div class="px-4 py-3.5 flex items-center justify-between border-b border-[#f9f9f9]">
-                    <svg class="w-6 h-6 text-eta-black" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-                    <div class="text-center flex items-center justify-center gap-1.5">
-                        <span id="out-board" class="text-[15px] font-bold text-eta-black leading-none">자유게시판</span>
-                    </div>
-                    <div class="flex items-center gap-2.5 text-[#d6d6d6]">
-                        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                        <svg class="w-[20px] h-[20px]" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-                    </div>
-                </div>
+const OOC_DEFAULT=`*[OOC: 이전 RP 중지. 새로운 상황 전개. NPC/PC가 같은 대학에 다니는 학생으로 가정한다. 직접적인 서술이 아닌, 대학생 커뮤니티 형식으로, 두 사람 사이의 미묘한 분위기와 소문을 풀어낼 것. 캠퍼스에서 함께 있는 모습, 사소한 스킨십, 시험기간/축제/동아리/강의실/도서관 등 대학 생활 속 자연스러운 접점을 활용해 서술하되, 글쓴이는 어디까지나 목격담을 푸는 학생처럼 현실감 있게 말해야 한다. 각 게시글은 실제 대학 커뮤니티에 올라온 짧은 목격담처럼, 한눈에 읽히는 분량으로 간결하게 작성한다. 두 사람의 관계를 직접 단정 짓기보다는, 사소한 배려·숨길 수 없는 애정·묘한 긴장감 등을 통해 주변 사람들이 눈치챌 정도의 분위기를 담아라. 전체적으로 설렘과 현실감이 느껴지도록, 익명 커뮤니티 감성을 살려 마무리하시오.
+· 각 게시글 제목:
+· 본문 내용:
+· 댓글 반응:]*`;
 
-                <div class="px-5 pt-4 pb-2">
-                    <div class="flex items-center gap-3 mb-5">
-                        <div class="profile-img">
-                            <svg class="w-[22px] h-[22px] text-[#d6d6d6]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <span class="text-[15px] font-bold text-eta-black leading-none mb-1.5">익명</span>
-                            <span id="out-time" class="text-[12px] text-eta-gray leading-none">30분 전</span>
-                        </div>
-                    </div>
-                    
-                    <h2 id="out-title" class="text-[20px] font-bold text-eta-black mb-2.5 tracking-tight leading-snug">제목 없음</h2>
-                    <p id="out-content" class="text-[15px] text-eta-black leading-[1.6] break-keep whitespace-pre-wrap tracking-tight min-h-[40px]">내용을 입력하세요.</p>
-                </div>
+/* ───── state ───── */
+let S={board:'',nick:'',title:'',body:'',img:null,time:'방금 전',view:0,like:0,scrap:0,
+       theme:'light',ratio:3,shadow:true,showView:true,stamp:true,comments:[],ooc:OOC_DEFAULT};
+let menu='post';
+const g=p=>p.split('.').reduce((o,k)=>o?.[k],S);
+function sp(p,v){const k=p.split('.');let o=S;for(let i=0;i<k.length-1;i++)o=o[k[i]];o[k.at(-1)]=v;}
 
-                <div class="flex border-y border-[#f2f2f2] mt-6 py-3 text-[13px] font-bold text-eta-gray">
-                    <div class="flex-1 flex justify-center items-center gap-1.5 border-r border-[#f2f2f2]">
-                        <svg class="w-4 h-4 text-eta-red" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
-                        <span class="text-eta-red">공감</span>
-                        <span id="out-like" class="text-eta-red ml-0.5">120</span>
-                    </div>
-                    <div class="flex-1 flex justify-center items-center gap-1.5 border-r border-[#f2f2f2]">
-                        <svg class="w-4 h-4 text-eta-teal" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path></svg>
-                        <span class="text-eta-teal">댓글</span>
-                        <span id="out-comment" class="text-eta-teal ml-0.5">2</span>
-                    </div>
-                    <div class="flex-1 flex justify-center items-center gap-1.5">
-                        <svg class="w-4 h-4 text-[#ffbb00]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                        <span class="text-[#ffbb00]">스크랩</span>
-                        <span id="out-scrap" class="text-[#ffbb00] ml-0.5">7</span>
-                    </div>
-                </div>
+/* ───── preview ───── */
+const AV=`<svg width="21" height="21" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+const AVS=`<svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+const THUMB=`<svg width="15" height="15" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/></svg>`;
+const DOT=c=>`<svg width="13" height="13" fill="${c}" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>`;
 
-                <div id="out-comments-list" class="flex flex-col bg-white min-h-[60px] pb-6">
-                    </div>
+function cmHTML(c,n,isRe,nick){
+  const name=c.au?(nick||'익명')+'(글쓴이)':'익명'+n;
+  const aw=isRe?`<svg class="aw" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5v6a2 2 0 002 2h12m0 0l-4-4m4 4l-4 4"/></svg>`:'';
+  const lk=c.lk>0?`<span style="display:inline-flex;align-items:center;gap:3px;color:var(--red);font-weight:700"><svg width="11" height="11" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/></svg>${c.lk}</span>`:'';
+  return`<div class="cm ${isRe?'re':''}">${aw}<div class="av s" style="margin-top:2px">${AVS}</div>
+    <div style="flex:1;min-width:0"><div class="cm-h"><span class="cm-n" ${c.au?'style="color:var(--red)"':''}>${esc(name)}</span>${DOT('var(--ic)')}</div>
+    <div class="cm-t">${esc(c.tx)||'&nbsp;'}</div><div class="cm-f"><span>${esc(c.tm)}</span>${lk}</div></div></div>`;
+}
+function shotHTML(s,exp){
+  let total=0,n=0,rows='';
+  s.comments.forEach(c=>{total+=1+c.re.length;rows+=cmHTML(c,++n,false,s.nick);c.re.forEach(r=>rows+=cmHTML(r,++n,true,s.nick));});
+  return`<div class="stage ${exp&&!s.shadow?'flat':''}"><div class="shot ${s.theme==='dark'?'dark':''}">
+    <div class="hd">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" style="color:var(--tx)"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      <div class="hd-m"><span class="mk"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 016.5 4h11A2.5 2.5 0 0120 6.5v7a2.5 2.5 0 01-2.5 2.5H12l-4.6 3.4a.6.6 0 01-.96-.48V16H6.5A2.5 2.5 0 014 13.5v-7z" fill="#fff"/></svg></span><span class="bd">${esc(s.board||'자유게시판')}</span></div>
+      <div class="hd-i"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/></svg>${DOT('currentColor')}</div>
+    </div>
+    <div class="pt">
+      <div class="wr"><div class="av">${AV}</div><div><div class="nk">${esc(s.nick||'익명')}</div>
+        <div class="mt">${esc(s.time)}${s.showView?` · 조회 ${(+s.view||0).toLocaleString()}`:''}</div></div></div>
+      ${s.title?`<div class="tt">${esc(s.title)}</div>`:''}
+      <div class="bo">${esc(s.body)}</div>
+      ${s.img?`<img class="pi" src="${s.img}">`:''}
+    </div>
+    <div class="st">
+      <div style="color:var(--red)">${THUMB}공감 ${(+s.like||0).toLocaleString()}</div>
+      <div style="color:#2aa67f"><svg width="15" height="15" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7z" clip-rule="evenodd"/></svg>댓글 ${total}</div>
+      <div style="color:#e8a317"><svg width="15" height="15" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-3.5L5 18V4z"/></svg>스크랩 ${(+s.scrap||0).toLocaleString()}</div>
+    </div>${rows}
+    ${s.stamp?`<div class="sp">가상으로 만든 이미지입니다 · 실제 게시물이 아닙니다</div>`:''}
+  </div></div>`;
+}
+let raf=0;
+function paint(){
+  $('#preview').innerHTML=shotHTML(S);
+  let t=0;S.comments.forEach(c=>t+=1+c.re.length);
+  $('#cap').textContent=`${S.theme==='dark'?'다크':'라이트'} · 댓글 ${t}개`;
+  if(menu==='cmt'){const n=document.querySelector('.head h2 i');if(n)n.textContent=`${t}개`;}
+  fit();
+}
+function fit(){
+  const v=$('#canvas'),p=$('#preview').firstElementChild;if(!p)return;
+  const sc=Math.max(.1,Math.min(1,(v.clientWidth-40)/p.offsetWidth,(v.clientHeight-110)/p.offsetHeight));
+  $('#scaler').style.transform=`translate(-50%,-50%) scale(${sc})`;
+}
+const paintSoon=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;paint();});};
+let lastW=innerWidth;
+addEventListener('resize',()=>{
+  // 모바일에서 키보드가 올라올 때(높이만 변함)는 다시 맞추지 않음 — 미리보기가 튀는 걸 방지
+  const t=document.activeElement;
+  if(innerWidth===lastW&&t&&/^(INPUT|TEXTAREA)$/.test(t.tagName))return;
+  lastW=innerWidth;fit();
+});
 
-            </div>
-        </section>
-    </main>
+/* ───── menus ───── */
+const IC={
+  post:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z"/><path d="M8.5 9h7M8.5 13h7M8.5 17h4"/></svg>`,
+  cmt:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 4.5c-4.7 0-8.5 3-8.5 6.7 0 2.3 1.5 4.4 3.8 5.6L6.5 20l3.4-1.9c.7.1 1.4.2 2.1.2 4.7 0 8.5-3 8.5-6.7s-3.8-6.6-8.5-6.6z"/></svg>`,
+  look:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2"/></svg>`,
+  ooc:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 15.5H6a2.5 2.5 0 01-2.5-2.5V6A2.5 2.5 0 016 3.5h9A2.5 2.5 0 0117.5 6v1"/><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/></svg>`,
+};
+const MENUS=[['post','글','게시글','제목 · 본문 · 사진'],['cmt','댓글','댓글','대댓글까지'],['look','보기','보기 설정','테마 · 표시'],['ooc','OOC','OOC 프롬프트','복사해서 사용']];
 
-    <script>
-        // 초기 데이터 설정
-        let comments = [];
-        let postStats = { time: '30분 전', like: 120, scrap: 7 };
-        const timePool = ["방금 전", "1분 전", "3분 전", "12분 전", "30분 전", "1시간 전", "04/10 22:15"];
+const f=(l,i)=>`<div class="f"><span>${l}</span>${i}</div>`;
+const u=(p,ph,cls='')=>`<input class="u ${cls}" data-bind="${p}" value="${esc(g(p))}" placeholder="${esc(ph)}">`;
+const un=(p,ph)=>`<input class="u mini" type="number" data-bind="${p}" data-num value="${g(p)}" placeholder="${esc(ph)}">`;
+const ua=(p,ph)=>`<textarea class="u" data-bind="${p}" placeholder="${esc(ph)}">${esc(g(p))}</textarea>`;
+const pil=(p,o,cls='')=>`<div class="pills ${cls}">${o.map(([v,l])=>`<button data-act="set" data-path="${p}" data-val="${v}" ${typeof v==='number'?'data-num':''} class="${g(p)==v?'on':''}">${l}</button>`).join('')}</div>`;
+const sw=(p,l)=>`<label class="sw"><span>${l}</span><input type="checkbox" data-bind="${p}" ${g(p)?'checked':''}><i></i></label>`;
 
-        // 🎲 수치 랜덤 로직
-        function rollRandomStats() {
-            postStats.time = timePool[Math.floor(Math.random() * timePool.length)];
-            postStats.like = Math.floor(Math.random() * 200);
-            postStats.scrap = Math.floor(Math.random() * 20);
-            
-            comments.forEach(c => {
-                c.time = timePool[Math.floor(Math.random() * timePool.length)];
-                c.like = Math.random() > 0.4 ? Math.floor(Math.random() * 10) + 1 : 0;
-            });
-            syncView();
-        }
+function M_post(){
+  const has=!!S.img;
+  return`<div class="f"><span>게시판 · 작성자</span><div class="two">${u('board','자유게시판')}${u('nick','익명')}</div></div>
+    ${f('제목',u('title','비우면 숨겨져요','big'))}
+    ${f('본문',ua('body','본문 내용'))}
+    <div class="f"><span>사진</span><div class="tmb"><div class="im" style="${has?`background-image:url('${S.img}')`:''}">${has?'':'+'}</div>
+      <div style="flex:1"><b>${has?'사진 적용됨':'본문 사진'}</b><span>JPG · PNG · WEBP</span></div>
+      <label class="up">${has?'변경':'선택'}<input type="file" accept="image/*" data-img></label>
+      ${has?`<button class="tiny rd" data-act="clearImg">삭제</button>`:''}</div></div>
+    <div class="f"><span>시각 · 조회 · 공감 · 스크랩</span><div class="four">${u('time','방금 전','mini')}${un('view','0')}${un('like','0')}${un('scrap','0')}</div></div>`;
+}
+function M_cmt(){
+  const C=S.comments;
+  const one=(c,i,pi)=>{
+    const re=pi!==undefined,b=re?`comments.${pi}.re.${i}`:`comments.${i}`,arr=re?C[pi].re.length:C.length;
+    return`<div class="cb ${re?'re':''} ${c.au?'au':''}">
+      <div class="cb-top">${pil(b+'.au',[[false,'일반'],[true,'글쓴이']],'xs')}
+        <div class="cb-tools">
+          ${i>0?`<button class="tiny" data-act="move" data-i="${i}" ${re?`data-p="${pi}"`:''} data-d="-1">위로</button>`:''}
+          ${i<arr-1?`<button class="tiny" data-act="move" data-i="${i}" ${re?`data-p="${pi}"`:''} data-d="1">아래로</button>`:''}
+          ${re?'':`<button class="tiny" data-act="addRe" data-i="${i}">답글</button>`}
+          <button class="tiny rd" data-act="del" data-i="${i}" ${re?`data-p="${pi}"`:''}>삭제</button>
+        </div></div>
+      ${ua(b+'.tx',re?'답글 내용':'댓글 내용')}
+      <div class="cb-bot"><input class="u" style="flex:1" data-bind="${b}.tm" value="${esc(c.tm)}" placeholder="시간">
+        <input class="u" style="width:58px" type="number" data-bind="${b}.lk" data-num value="${c.lk}" placeholder="공감"></div></div>`;
+  };
+  const list=C.length?C.map((c,i)=>one(c,i)+c.re.map((r,j)=>one(r,j,i)).join('')).join(''):`<div class="none">아직 댓글이 없어요</div>`;
+  return list+`<button class="ln" data-act="addC">＋ 댓글 추가</button>`;
+}
+function M_look(){
+  return`${f('테마',pil('theme',[['light','라이트'],['dark','다크']],'wide'))}
+    ${sw('showView','조회수 표시')}${sw('stamp','하단 가상 이미지 표기')}${sw('shadow','저장할 때 그림자 포함')}`;
+}
+function M_ooc(){
+  return`<textarea class="ooc" data-bind="ooc" spellcheck="false">${esc(S.ooc)}</textarea>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ln solid" data-act="copyOoc">프롬프트 복사</button>
+      <button class="ln" style="flex:0 0 96px" data-act="resetOoc">되돌리기</button>
+    </div>
+    <p class="note">여기 내용을 복사해서 대화창에 붙여넣으면 돼요. 직접 고쳐 쓸 수도 있고, 되돌리기를 누르면 기본 문구로 돌아옵니다.</p>`;
+}
+const HEAD_OPS={
+  post:`<button data-act="rollPost">수치 랜덤</button><button class="r" data-act="wipePost">글 비우기</button>`,
+  cmt:`<button data-act="rollCmt">수치 랜덤</button><button class="r" data-act="wipeCmt">댓글 전체 삭제</button>`,
+  look:``,
+  ooc:``,
+};
+function build(){
+  const p=$('.panel'),t=p.scrollTop;
+  const m=MENUS.find(x=>x[0]===menu);
+  let note=m[3];
+  if(menu==='cmt'){let n=0;S.comments.forEach(c=>n+=1+c.re.length);note=`${n}개`;}
+  $('#pin').innerHTML=`<div class="head"><h2>${m[2]}<i>${note}</i></h2>${HEAD_OPS[menu]?`<div class="ops">${HEAD_OPS[menu]}</div>`:''}</div>`
+    +({post:M_post,cmt:M_cmt,look:M_look,ooc:M_ooc})[menu]();
+  $('#rail').innerHTML=MENUS.map(([k,lb])=>`<button class="${menu===k?'on':''}" data-act="menu" data-k="${k}">${IC[k]}${lb}</button>`).join('');
+  $('#qual').innerHTML=[2,3,4].map(r=>`<button class="${S.ratio===r?'on':''}" data-act="set" data-path="ratio" data-val="${r}" data-num>${r}x</button>`).join('');
+  p.scrollTop=t;
+}
 
-        // 화면 렌더링 동기화 함수 (오른쪽 뷰어 및 텍스트만 업데이트)
-        function syncView() {
-            // 게시글 텍스트 업데이트
-            const title = document.getElementById('in-title').value;
-            const titleEl = document.getElementById('out-title');
-            if(title) { titleEl.innerText = title; titleEl.style.display = 'block'; } else { titleEl.style.display = 'none'; }
-            
-            document.getElementById('out-content').innerText = document.getElementById('in-content').value || '내용을 입력하세요.';
-            
-            // 수치 업데이트
-            document.getElementById('out-time').innerText = postStats.time;
-            document.getElementById('out-like').innerText = postStats.like;
-            document.getElementById('out-comment').innerText = comments.length;
-            document.getElementById('out-scrap').innerText = postStats.scrap;
-            document.getElementById('comment-counter').innerText = `${comments.length}개`;
+/* ───── events ───── */
+document.addEventListener('input',e=>{
+  const p=e.target.dataset.bind;if(!p)return;
+  let v=e.target.type==='checkbox'?e.target.checked:e.target.value;
+  if(e.target.dataset.num!==undefined)v=parseInt(v||0,10);
+  sp(p,v);
+  if(e.target.type==='checkbox')build();
+  if(p!=='ooc')paintSoon();
+});
+const A={
+  menu:el=>{menu=el.dataset.k;build();
+    if(innerWidth>1000)$('.panel').scrollTop=0;
+    else scrollTo({top:0,behavior:'smooth'});},
+  set:el=>{let v=el.dataset.val;if(el.dataset.num!==undefined)v=Number(v);else if(v==='true')v=true;else if(v==='false')v=false;sp(el.dataset.path,v);build();paintSoon();},
+  addC:()=>{S.comments.push({tx:'',au:false,lk:0,tm:'방금 전',re:[]});build();paintSoon();last();},
+  addRe:el=>{S.comments[+el.dataset.i].re.push({tx:'',au:false,lk:0,tm:'방금 전'});build();paintSoon();last();},
+  del:el=>{const i=+el.dataset.i,p=el.dataset.p;(p!==undefined?S.comments[+p].re:S.comments).splice(i,1);build();paintSoon();},
+  move:el=>{const i=+el.dataset.i,d=+el.dataset.d,p=el.dataset.p,a=p!==undefined?S.comments[+p].re:S.comments,j=i+d;
+    if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];build();paintSoon();},
+  clearImg:()=>{S.img=null;build();paintSoon();},
+  rollPost:()=>{S.time=pick(TIMES);S.view=rnd(50,4000);S.like=rnd(0,250);S.scrap=rnd(0,30);build();paintSoon();},
+  rollCmt:()=>{S.comments.forEach(c=>{c.tm=pick(TIMES);c.lk=Math.random()>.4?rnd(1,20):0;
+    c.re.forEach(r=>{r.tm=pick(TIMES);r.lk=Math.random()>.55?rnd(1,8):0;});});build();paintSoon();},
+  wipePost:()=>{S.title='';S.body='';S.img=null;S.view=0;S.like=0;S.scrap=0;build();paintSoon();toast('글을 비웠어요');},
+  wipeCmt:()=>{S.comments=[];build();paintSoon();toast('댓글을 지웠어요');},
+  resetOoc:()=>{S.ooc=OOC_DEFAULT;build();toast('기본 문구로 되돌렸어요');},
+  copyOoc:async()=>{try{await navigator.clipboard.writeText(S.ooc);toast('프롬프트를 복사했어요');}
+    catch(e){const t=$('.ooc');t.select();document.execCommand('copy');toast('프롬프트를 복사했어요');}},
+  png:()=>out(false),copy:()=>out(true),
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;e.preventDefault();A[el.dataset.act]?.(el);});
+function last(){requestAnimationFrame(()=>{const c=$('#pin').querySelectorAll('.cb');const l=c[c.length-1];
+  if(l){l.scrollIntoView({block:'center',behavior:'smooth'});l.querySelector('textarea')?.focus({preventScroll:true});}});}
+document.addEventListener('change',e=>{
+  const el=e.target;if(el.type!=='file'||!el.files.length)return;
+  const file=el.files[0];
+  if(!/^image\//.test(file.type)){toast('이미지 파일만 넣을 수 있어요');el.value='';return;}
+  const r=new FileReader();
+  r.onload=ev=>{S.img=ev.target.result;build();paintSoon();};
+  r.onerror=()=>toast('사진을 읽지 못했어요');
+  r.readAsDataURL(file);
+  el.value='';
+});
 
-            // [뷰어] 에타 댓글 UI 렌더링
-            const viewList = document.getElementById('out-comments-list');
-            viewList.innerHTML = comments.map((c, i) => {
-                const authorColor = c.isAuthor ? 'text-eta-teal' : 'text-eta-black';
-                const displayName = c.isAuthor ? '익명(글쓴이)' : `익명${i+1}`;
-                const borderTop = i > 0 ? 'border-t border-[#f2f2f2]' : '';
-                
-                // 공감 뱃지
-                const likeBadge = c.like > 0 
-                    ? `<div style="display:inline-flex; align-items:center; gap:2px; margin-left:8px; color:#f91f15; font-size:12px; font-weight:bold;">
-                        <svg style="width:12px; height:12px; margin-bottom:1px;" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path></svg>
-                        <span>${c.like}</span>
-                       </div>` 
-                    : '';
+/* ───── export ───── */
+let tT=0;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('on'),2200);}
+function stamp(){const d=new Date(),z=n=>String(n).padStart(2,'0');return`${d.getFullYear()}${z(d.getMonth()+1)}${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}`;}
+let busy=false;
+const waitImgs=root=>Promise.all([...root.querySelectorAll('img')].map(im=>
+  im.complete&&im.naturalWidth?Promise.resolve():new Promise(r=>{im.onload=im.onerror=r;})));
+async function out(copy){
+  if(busy)return;
+  busy=true;
+  toast(copy?'복사 준비 중…':'저장 준비 중…');
+  const host=$('#off');
+  try{
+    await document.fonts.ready;
+    host.innerHTML=shotHTML(S,true);
+    const node=host.firstElementChild;
+    await waitImgs(node);
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    const opt={pixelRatio:S.ratio,backgroundColor:null,style:{transform:'none',margin:'0'}};
+    await htmlToImage.toPng(node,opt);           // 워밍업 — 첫 렌더에서 폰트가 빠지는 문제 방지
+    const url=await htmlToImage.toPng(node,opt);
+    if(copy){
+      if(!window.ClipboardItem||!navigator.clipboard?.write)throw new Error('no clipboard');
+      const b=await(await fetch(url)).blob();
+      await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);
+      toast('클립보드에 복사했어요');
+    }else{
+      const a=document.createElement('a');a.href=url;a.download=`커뮤니티_${stamp()}.png`;
+      document.body.appendChild(a);a.click();a.remove();
+      toast('저장했어요');
+    }
+  }catch(err){
+    console.error(err);
+    toast(copy?'이 브라우저에선 복사가 안 돼요 — 저장을 써 주세요':'저장에 실패했어요');
+  }finally{host.innerHTML='';busy=false;}
+}
 
-                return `
-                    <div class="${borderTop} px-4 py-3.5 flex gap-3 bg-white">
-                        <div class="profile-img-sm flex-shrink-0 mt-0.5">
-                            <svg class="w-[18px] h-[18px] text-[#d6d6d6]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
-                        </div>
-                        <div class="flex-1 flex flex-col pt-0.5">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-[13.5px] font-bold ${authorColor} tracking-tight">${displayName}</span>
-                                <div class="flex items-center text-[#d6d6d6] gap-2.5">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
-                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-                                </div>
-                            </div>
-                            <div class="text-[14px] text-eta-black leading-[1.5] tracking-tight break-keep whitespace-pre-wrap">${c.text}</div>
-                            <div class="flex items-center mt-1.5 leading-none">
-                                <span class="text-[12px] text-[#a6a6a6]">${c.time}</span>
-                                ${likeBadge}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // 왼쪽 에디터 UI 렌더링 (포커스 유지를 위해 분리)
-        function renderEditor() {
-            const editList = document.getElementById('editor-comments');
-            if (comments.length === 0) {
-                editList.innerHTML = `<div class="text-center text-xs text-gray-400 py-4 bg-gray-50 rounded">작성된 댓글이 없습니다.</div>`;
-            } else {
-                editList.innerHTML = comments.map((c, i) => `
-                    <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 p-2 rounded-lg">
-                        <label class="flex flex-col items-center justify-center gap-1 px-1 cursor-pointer">
-                            <span class="text-[10px] text-gray-500">글쓴이</span>
-                            <input type="checkbox" class="custom-checkbox" ${c.isAuthor ? 'checked' : ''} onchange="comments[${i}].isAuthor=this.checked; syncView()">
-                        </label>
-                        <input type="text" class="ui-input !mb-0 !p-2 !text-xs flex-1" value="${c.text}" oninput="comments[${i}].text=this.value; syncView()" placeholder="내용">
-                        <button onclick="deleteComment(${i})" class="text-gray-400 hover:text-red-500 font-bold px-2">✕</button>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // 새 댓글 추가 (자동 커서 이동 포함)
-        function addComment() {
-            comments.push({ text: "", time: "방금 전", like: 0, isAuthor: false });
-            renderEditor();
-            syncView();
-            setTimeout(() => {
-                const el = document.getElementById('editor-comments');
-                el.scrollTop = el.scrollHeight;
-                // 새로 추가된 입력창에 자동으로 마우스 커서 올리기
-                const inputs = el.querySelectorAll('input[type="text"]');
-                if(inputs.length > 0) inputs[inputs.length - 1].focus();
-            }, 50);
-        }
-
-        // 댓글 삭제
-        function deleteComment(idx) {
-            comments.splice(idx, 1);
-            renderEditor();
-            syncView();
-        }
-
-        // 이미지 캡처
-        async function captureImage() {
-            await document.fonts.ready;
-            
-            const target = document.getElementById('capture-target');
-            
-            htmlToImage.toPng(target, {
-                quality: 1.0,
-                pixelRatio: 4,
-                backgroundColor: '#ffffff',
-                style: {
-                    transform: 'none',
-                    margin: '0'
-                }
-            })
-            .then(function (dataUrl) {
-                const link = document.createElement('a');
-                link.download = `에타캡처_${Date.now()}.png`;
-                link.href = dataUrl;
-                link.click();
-            })
-            .catch(function (error) {
-                console.error('캡처 중 오류가 발생했습니다!', error);
-                alert('캡처에 실패했습니다. 다시 시도해주세요.');
-            });
-        }
-
-        // 초기 실행
-        window.onload = () => {
-            renderEditor();
-            syncView(); 
-        };
-    </script>
+build();paint();
+if(document.fonts)document.fonts.ready.then(fit);
+</script>
 </body>
 </html>
