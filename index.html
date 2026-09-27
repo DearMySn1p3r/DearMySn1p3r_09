@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>University Everytime Editor</title>
+<title>커뮤니티 메이커</title>
 <link rel="icon" type="image/png" href="MOMO.png">
 <link rel="apple-touch-icon" href="MOMO.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -435,19 +435,52 @@ function stamp(){const d=new Date(),z=n=>String(n).padStart(2,'0');return`${d.ge
 let busy=false;
 const waitImgs=root=>Promise.all([...root.querySelectorAll('img')].map(im=>
   im.complete&&im.naturalWidth?Promise.resolve():new Promise(r=>{im.onload=im.onerror=r;})));
+
+// 사파리는 캡처 시점에 웹폰트가 준비돼 있지 않으면 시스템 글꼴로 대체해 글자가 밀린다.
+const IS_SAFARI=/^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+// 미리보기에서 실제로 쓰는 굵기만 미리 로드 (fonts.ready 는 '아직 안 쓴 굵기'를 보장하지 않음)
+const FONT_SPECS=['400 15px Pretendard','500 11px Pretendard','600 13px Pretendard','700 14px Pretendard','800 20px Pretendard'];
+async function readyFonts(){
+  try{ await Promise.all(FONT_SPECS.map(s=>document.fonts.load(s,'가나다라마ABCabc0123·'))); }catch(e){}
+  try{ await document.fonts.ready; }catch(e){}
+}
+// 폰트를 PNG 안에 박아 넣는 CSS — 한 번만 만들어 재사용 (매 캡처마다 다시 받지 않도록).
+// 실패하거나 오래 걸리면 undefined 를 돌려 라이브러리 기본 동작에 맡긴다.
+let FONT_CSS;
+async function fontCSS(node){
+  if(FONT_CSS!==undefined)return FONT_CSS||undefined;
+  try{
+    FONT_CSS=await Promise.race([
+      htmlToImage.getFontEmbedCSS(node),
+      new Promise((_,x)=>setTimeout(()=>x(new Error('timeout')),12000))
+    ]);
+  }catch(e){ FONT_CSS=''; }
+  return FONT_CSS||undefined;
+}
 async function out(copy){
   if(busy)return;
   busy=true;
   toast(copy?'복사 준비 중…':'저장 준비 중…');
   const host=$('#off');
   try{
-    await document.fonts.ready;
+    await readyFonts();
     host.innerHTML=shotHTML(S,true);
     const node=host.firstElementChild;
     await waitImgs(node);
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-    const opt={pixelRatio:S.ratio,backgroundColor:null,style:{transform:'none',margin:'0'}};
-    await htmlToImage.toPng(node,opt);           // 워밍업 — 첫 렌더에서 폰트가 빠지는 문제 방지
+
+    const w=node.offsetWidth,h=node.offsetHeight;
+    // iOS 사파리는 캔버스 면적 제한이 있어 너무 큰 배율은 빈 이미지가 된다
+    let ratio=S.ratio;
+    if(IS_SAFARI)while(ratio>1&&w*h*ratio*ratio>16e6)ratio-=1;
+
+    const opt={pixelRatio:ratio,backgroundColor:null,width:w,height:h,
+      style:{transform:'none',margin:'0'}};
+    const fc=await fontCSS(node);
+    if(fc)opt.fontEmbedCSS=fc;
+    // 첫 렌더에서 폰트가 빠지는 문제 방지 — 사파리는 한 번 더
+    const warm=IS_SAFARI?2:1;
+    for(let i=0;i<warm;i++)await htmlToImage.toPng(node,opt);
     const url=await htmlToImage.toPng(node,opt);
     if(copy){
       if(!window.ClipboardItem||!navigator.clipboard?.write)throw new Error('no clipboard');
