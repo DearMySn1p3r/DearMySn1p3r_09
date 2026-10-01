@@ -113,6 +113,10 @@ textarea.u{height:auto;min-height:78px;line-height:1.62;resize:vertical;padding:
 .cb:before{content:'';position:absolute;left:-3px;top:4px;width:5px;height:5px;border-radius:50%;background:var(--hair)}
 .cb.au:before{background:var(--red)}
 .cb.re{margin-left:20px}
+.cb.re:after{content:'대댓글';position:absolute;right:0;top:-1px;font-size:10px;color:var(--faint);letter-spacing:.04em}
+.re-btn{display:inline-flex;align-items:center;gap:6px;margin-top:12px;height:28px;padding:0 12px;border:1px solid var(--hair);border-radius:999px;
+  font-size:11.5px;font-weight:500;color:var(--soft);transition:.15s}
+.re-btn:hover{border-color:var(--ink);color:var(--ink)}
 .cb:last-of-type{margin-bottom:10px}
 .cb-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .cb-tools{margin-left:auto;display:flex;gap:10px;opacity:0;transition:.16s}
@@ -286,7 +290,7 @@ function cmHTML(c,n,isRe,nick){
 }
 function shotHTML(s,exp){
   let total=0,n=0,rows='';
-  s.comments.forEach(c=>{total+=1+c.re.length;rows+=cmHTML(c,++n,false,s.nick);c.re.forEach(r=>rows+=cmHTML(r,++n,true,s.nick));});
+  s.comments.forEach(c=>{total+=1+c.re.length;rows+=cmHTML(c,c.au?n:++n,false,s.nick);c.re.forEach(r=>rows+=cmHTML(r,r.au?n:++n,true,s.nick));});
   return`<div class="stage ${s.shadow?'':'flat'}"><div class="shot ${s.theme==='dark'?'dark':''}">
     <div class="hd">
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" style="color:var(--tx)"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
@@ -366,12 +370,13 @@ function M_cmt(){
         <div class="cb-tools">
           ${i>0?`<button class="tiny" data-act="move" data-i="${i}" ${re?`data-p="${pi}"`:''} data-d="-1">위로</button>`:''}
           ${i<arr-1?`<button class="tiny" data-act="move" data-i="${i}" ${re?`data-p="${pi}"`:''} data-d="1">아래로</button>`:''}
-          ${re?'':`<button class="tiny" data-act="addRe" data-i="${i}">답글</button>`}
           <button class="tiny rd" data-act="del" data-i="${i}" ${re?`data-p="${pi}"`:''}>삭제</button>
         </div></div>
-      ${ua(b+'.tx',re?'답글 내용':'댓글 내용')}
+      ${ua(b+'.tx',re?'대댓글 내용':'댓글 내용')}
       <div class="cb-bot"><input class="u" style="flex:1" data-bind="${b}.tm" value="${esc(c.tm)}" placeholder="시간">
-        <input class="u" style="width:58px" type="number" data-bind="${b}.lk" data-num value="${c.lk}" placeholder="공감"></div></div>`;
+        <input class="u" style="width:58px" type="number" data-bind="${b}.lk" data-num value="${c.lk}" placeholder="공감"></div>
+      ${re?'':`<button class="re-btn" data-act="addRe" data-i="${i}"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5v6a2 2 0 002 2h12m0 0l-4-4m4 4l-4 4"/></svg>대댓글 달기</button>`}
+    </div>`;
   };
   const list=C.length?C.map((c,i)=>one(c,i)+c.re.map((r,j)=>one(r,j,i)).join('')).join(''):`<div class="none">아직 댓글이 없어요</div>`;
   return list+`<button class="ln" data-act="addC">＋ 댓글 추가</button>`;
@@ -425,7 +430,10 @@ const A={
     else scrollTo({top:0,behavior:'smooth'});},
   set:el=>{let v=el.dataset.val;if(el.dataset.num!==undefined)v=Number(v);else if(v==='true')v=true;else if(v==='false')v=false;sp(el.dataset.path,v);build();paintSoon();},
   addC:()=>{S.comments.push({tx:'',au:false,lk:0,tm:'방금 전',re:[]});build();paintSoon();last();},
-  addRe:el=>{S.comments[+el.dataset.i].re.push({tx:'',au:false,lk:0,tm:'방금 전'});build();paintSoon();last();},
+  addRe:el=>{const i=+el.dataset.i,R=S.comments[i].re;R.push({tx:'',au:false,lk:0,tm:'방금 전'});build();paintSoon();
+    // 방금 단 대댓글로 이동 (맨 아래 댓글이 아니어도)
+    requestAnimationFrame(()=>{const t=document.querySelector(`[data-bind="comments.${i}.re.${R.length-1}.tx"]`);
+      t?.closest('.cb')?.scrollIntoView({block:'center',behavior:'smooth'});t?.focus({preventScroll:true});});},
   del:el=>{const i=+el.dataset.i,p=el.dataset.p;(p!==undefined?S.comments[+p].re:S.comments).splice(i,1);build();paintSoon();},
   move:el=>{const i=+el.dataset.i,d=+el.dataset.d,p=el.dataset.p,a=p!==undefined?S.comments[+p].re:S.comments,j=i+d;
     if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];build();paintSoon();},
